@@ -9,7 +9,7 @@ import android.net.wifi.WifiManager
 class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) {
     /**
      * $ am startservice \
-     * -n com.google.wifisetup/.WifiSetupService \
+     * -n com.oogatta.wifisetup/.WifiSetupService \
      * -a WifiSetupService.Connect
      * -e ssid network_ssid
      * -e passphrase network_pass
