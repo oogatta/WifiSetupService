@@ -7,7 +7,18 @@ import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 
 class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) {
+    override fun onHandleIntent(intent: Intent?) {
+        intent?.apply {
+            when (action) {
+                "WifiSetupService.Connect" -> connect(intent)
+                "WifiSetupService.Remove" -> remove(intent)
+            }
+        }
+    }
+
     /**
+     * Connect
+     *
      * $ am startservice \
      * -n com.oogatta.wifisetup/.WifiSetupService \
      * -a WifiSetupService.Connect
@@ -15,14 +26,6 @@ class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) 
      * -e passphrase network_pass
      *
      */
-    override fun onHandleIntent(intent: Intent?) {
-        intent?.apply {
-            when (action) {
-                "WifiSetupService.Connect" -> connect(intent)
-            }
-        }
-    }
-
     private fun connect(intent: Intent) {
         val ssid = intent.getStringExtra("ssid") ?: return
         val passPhrase = intent.getStringExtra("passphrase") ?: return
@@ -42,6 +45,25 @@ class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) 
 
         println(ssid)
         println(passPhrase)
+    }
+
+    /**
+     * Remove
+     *
+     * $ am startservice \
+     * -n com.oogatta.wifisetup/.WifiSetupService \
+     * -a WifiSetupService.Remove
+     * -e ssid network_ssid
+     *
+     */
+    private fun remove(intent: Intent) {
+        val ssid = intent.getStringExtra("ssid") ?: return
+
+        (application.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
+            configuredNetworks.find { it.SSID == String.format("\"%s\"", ssid) }?.networkId?.also {
+                removeNetwork(it)
+            }
+        }
 
     }
 }
