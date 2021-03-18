@@ -21,19 +21,22 @@ class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) 
      *
      * $ am startservice \
      * -n com.oogatta.wifisetup/.WifiSetupService \
-     * -a WifiSetupService.Connect
-     * -e ssid network_ssid
-     * -e passphrase network_pass
+     * -a WifiSetupService.Connect \
+     * -e ssid network_ssid \
+     * -e passphrase network_pass \
+     * -e hidden yes
      *
      */
     private fun connect(intent: Intent) {
         val ssid = intent.getStringExtra("ssid") ?: return
         val passPhrase = intent.getStringExtra("passphrase") ?: return
+        val hidden = intent.getStringExtra("hidden") == "yes"
 
         val wifiConf = WifiConfiguration().apply {
             SSID = String.format("\"%s\"", ssid)
             status = WifiConfiguration.Status.ENABLED
             preSharedKey = String.format("\"%s\"", passPhrase)
+            hiddenSSID = hidden
         }
 
         (application.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
@@ -43,6 +46,7 @@ class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) 
             reconnect()
         }
 
+        println(wifiConf)
         println(ssid)
         println(passPhrase)
     }
@@ -52,7 +56,7 @@ class WifiSetupService : IntentService(WifiSetupService::class.java.simpleName) 
      *
      * $ am startservice \
      * -n com.oogatta.wifisetup/.WifiSetupService \
-     * -a WifiSetupService.Remove
+     * -a WifiSetupService.Remove \
      * -e ssid network_ssid
      *
      */
